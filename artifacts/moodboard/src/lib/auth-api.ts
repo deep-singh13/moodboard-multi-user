@@ -1,3 +1,5 @@
+import { notifyUnauthenticated } from "./auth-events";
+
 export interface AuthUser {
   id: string;
   email: string;
@@ -57,5 +59,18 @@ export async function changePassword(
     credentials: "include",
     body: JSON.stringify({ currentPassword, newPassword }),
   });
+
+  if (res.status === 401) {
+    const data = await res.json().catch(() => null);
+    const message =
+      data && typeof data === "object" && "error" in data
+        ? String((data as { error: unknown }).error)
+        : "Not authenticated";
+    if (message !== "Current password is incorrect") {
+      notifyUnauthenticated();
+    }
+    throw new Error(message);
+  }
+
   await parseJsonOrThrow(res);
 }

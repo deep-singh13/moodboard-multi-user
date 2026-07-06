@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { signup, login, logout, fetchMe, changePassword } from "./auth-api";
+import { onUnauthenticated } from "./auth-events";
 
 function mockFetchOnce(status: number, body: unknown) {
   global.fetch = vi.fn().mockResolvedValue({
@@ -77,5 +78,31 @@ describe("auth-api", () => {
     await expect(changePassword("wrong-pass", "new-pass")).rejects.toThrow(
       "Current password is incorrect",
     );
+  });
+
+  it("changePassword notifies onUnauthenticated listeners when the session is dead", async () => {
+    mockFetchOnce(401, { error: "Not authenticated" });
+
+    const listener = vi.fn();
+    onUnauthenticated(listener);
+
+    await expect(changePassword("old-pass", "new-pass")).rejects.toThrow(
+      "Not authenticated",
+    );
+
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
+  it("changePassword does NOT notify onUnauthenticated listeners on a wrong current password", async () => {
+    mockFetchOnce(401, { error: "Current password is incorrect" });
+
+    const listener = vi.fn();
+    onUnauthenticated(listener);
+
+    await expect(changePassword("wrong-pass", "new-pass")).rejects.toThrow(
+      "Current password is incorrect",
+    );
+
+    expect(listener).not.toHaveBeenCalled();
   });
 });
