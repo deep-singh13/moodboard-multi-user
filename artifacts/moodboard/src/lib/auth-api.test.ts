@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { signup, login, logout, fetchMe } from "./auth-api";
+import { signup, login, logout, fetchMe, changePassword } from "./auth-api";
 
 function mockFetchOnce(status: number, body: unknown) {
   global.fetch = vi.fn().mockResolvedValue({
@@ -60,6 +60,22 @@ describe("auth-api", () => {
     expect(fetch).toHaveBeenCalledWith(
       "/api/auth/logout",
       expect.objectContaining({ method: "POST", credentials: "include" }),
+    );
+  });
+
+  it("changePassword resolves on success", async () => {
+    mockFetchOnce(200, { ok: true });
+    await expect(changePassword("old-pass", "new-pass")).resolves.toBeUndefined();
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/auth/change-password",
+      expect.objectContaining({ method: "POST", credentials: "include" }),
+    );
+  });
+
+  it("changePassword throws the server error message on failure", async () => {
+    mockFetchOnce(401, { error: "Current password is incorrect" });
+    await expect(changePassword("wrong-pass", "new-pass")).rejects.toThrow(
+      "Current password is incorrect",
     );
   });
 });

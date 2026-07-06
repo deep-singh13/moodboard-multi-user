@@ -46,3 +46,16 @@ export async function fetchMe(): Promise<AuthUser | null> {
   if (res.status === 401) return null;
   return (await parseJsonOrThrow(res)) as AuthUser;
 }
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const res = await fetch(`${BASE}/change-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  await parseJsonOrThrow(res);
+}
