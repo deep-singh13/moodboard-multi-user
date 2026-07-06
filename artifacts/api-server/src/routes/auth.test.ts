@@ -98,3 +98,61 @@ describe("POST /api/auth/logout", () => {
     expect(me.status).toBe(401);
   });
 });
+
+describe("POST /api/auth/change-password", () => {
+  it("changes the password when the current password is correct", async () => {
+    const email = `frank${TEST_EMAIL_DOMAIN}`;
+    const agent = request.agent(app);
+    await agent.post("/api/auth/signup").send({ email, password: "correct-horse" });
+
+    const res = await agent
+      .post("/api/auth/change-password")
+      .send({ currentPassword: "correct-horse", newPassword: "new-correct-horse" });
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+
+    const oldLogin = await request(app)
+      .post("/api/auth/login")
+      .send({ email, password: "correct-horse" });
+    expect(oldLogin.status).toBe(401);
+
+    const newLogin = await request(app)
+      .post("/api/auth/login")
+      .send({ email, password: "new-correct-horse" });
+    expect(newLogin.status).toBe(200);
+  });
+
+  it("rejects an incorrect current password with 401 and does not change the password", async () => {
+    const email = `grace${TEST_EMAIL_DOMAIN}`;
+    const agent = request.agent(app);
+    await agent.post("/api/auth/signup").send({ email, password: "correct-horse" });
+
+    const res = await agent
+      .post("/api/auth/change-password")
+      .send({ currentPassword: "wrong-password", newPassword: "new-correct-horse" });
+    expect(res.status).toBe(401);
+
+    const stillWorks = await request(app)
+      .post("/api/auth/login")
+      .send({ email, password: "correct-horse" });
+    expect(stillWorks.status).toBe(200);
+  });
+
+  it("rejects a new password under 8 characters", async () => {
+    const email = `henry${TEST_EMAIL_DOMAIN}`;
+    const agent = request.agent(app);
+    await agent.post("/api/auth/signup").send({ email, password: "correct-horse" });
+
+    const res = await agent
+      .post("/api/auth/change-password")
+      .send({ currentPassword: "correct-horse", newPassword: "short" });
+    expect(res.status).toBe(400);
+  });
+
+  it("requires authentication", async () => {
+    const res = await request(app)
+      .post("/api/auth/change-password")
+      .send({ currentPassword: "whatever", newPassword: "new-correct-horse" });
+    expect(res.status).toBe(401);
+  });
+});

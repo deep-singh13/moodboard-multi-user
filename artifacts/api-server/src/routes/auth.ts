@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { createUser, verifyUserPassword } from "../lib/users";
+import { createUser, verifyUserPassword, updatePassword } from "../lib/users";
 import { requireAuth } from "../middlewares/require-auth";
 
 const router: IRouter = Router();
@@ -73,6 +73,31 @@ router.post("/auth/logout", (req, res) => {
     });
     res.json({ ok: true });
   });
+});
+
+router.post("/auth/change-password", requireAuth, async (req, res) => {
+  const { currentPassword, newPassword } = req.body as {
+    currentPassword?: unknown;
+    newPassword?: unknown;
+  };
+
+  if (!isValidPassword(newPassword)) {
+    res.status(400).json({ error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` });
+    return;
+  }
+  if (typeof currentPassword !== "string" || currentPassword.length === 0) {
+    res.status(401).json({ error: "Current password is incorrect" });
+    return;
+  }
+
+  const verified = await verifyUserPassword(req.user!.email, currentPassword);
+  if (!verified) {
+    res.status(401).json({ error: "Current password is incorrect" });
+    return;
+  }
+
+  await updatePassword(req.user!.id, newPassword);
+  res.json({ ok: true });
 });
 
 router.get("/auth/me", requireAuth, (req, res) => {
