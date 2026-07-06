@@ -2215,3 +2215,84 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.12);
 }
+
+/* ── Auth pages (login/signup) ────────────────────────────── */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-canvas);
+  padding: var(--space-6);
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.auth-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: var(--text-2xl);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-3);
+}
+
+.auth-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: calc(var(--space-1) * -1);
+}
+
+.auth-button {
+  margin-top: var(--space-3);
+  padding: 12px 15px;
+  background: var(--bg-btn-add);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.auth-button:hover:not(:disabled) {
+  background: var(--bg-btn-add-hover);
+}
+
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-switch {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-align: center;
+  margin: var(--space-3) 0 0;
+}
+
+.auth-switch a {
+  color: var(--bg-btn-add);
+}
+
+.auth-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+}
