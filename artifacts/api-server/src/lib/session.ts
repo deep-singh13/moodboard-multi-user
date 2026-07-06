@@ -1,4 +1,5 @@
-import session, { type RequestHandler } from "express-session";
+import session from "express-session";
+import type { RequestHandler } from "express";
 import createPgSessionStore from "connect-pg-simple";
 import { pool } from "./db";
 
