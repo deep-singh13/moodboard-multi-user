@@ -33,3 +33,11 @@ export async function verifyUserPassword(
 
   return { id: row.id, email: row.email };
 }
+
+export async function updatePassword(userId: string, newPassword: string): Promise<void> {
+  const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  await pool.query(`UPDATE users SET password_hash = $1 WHERE id = $2`, [
+    passwordHash,
+    userId,
+  ]);
+}

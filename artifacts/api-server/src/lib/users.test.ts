@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { pool, initDb } from "./db";
-import { createUser, verifyUserPassword } from "./users";
+import { createUser, verifyUserPassword, updatePassword } from "./users";
 
 const TEST_EMAIL_DOMAIN = "@users-lib-test.example.com";
 
@@ -57,5 +57,20 @@ describe("verifyUserPassword", () => {
   it("returns null for an unknown email", async () => {
     const verified = await verifyUserPassword(`nobody${TEST_EMAIL_DOMAIN}`, "whatever");
     expect(verified).toBeNull();
+  });
+});
+
+describe("updatePassword", () => {
+  it("changes the password so the old one no longer verifies and the new one does", async () => {
+    const email = `erin${TEST_EMAIL_DOMAIN}`;
+    const created = await createUser(email, "old-password-123");
+
+    await updatePassword(created.id, "new-password-456");
+
+    const oldAttempt = await verifyUserPassword(email, "old-password-123");
+    expect(oldAttempt).toBeNull();
+
+    const newAttempt = await verifyUserPassword(email, "new-password-456");
+    expect(newAttempt).toEqual({ id: created.id, email });
   });
 });
