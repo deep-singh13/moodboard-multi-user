@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { ChangePasswordModal } from "@/components/ChangePasswordModal";
 
 export function AccountMenu() {
   const { user, logout } = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   if (!user) return null;
 
@@ -19,9 +21,18 @@ export function AccountMenu() {
   return (
     <div className="account-menu">
       <span className="account-menu-email">{user.email}</span>
+      <button
+        className="account-menu-change-password"
+        onClick={() => setShowChangePassword(true)}
+      >
+        Change password
+      </button>
       <button className="account-menu-logout" onClick={handleLogout} disabled={loggingOut}>
         {loggingOut ? "Logging out…" : "Log out"}
       </button>
+      {showChangePassword && (
+        <ChangePasswordModal onClose={() => setShowChangePassword(false)} />
+      )}
     </div>
   );
 }

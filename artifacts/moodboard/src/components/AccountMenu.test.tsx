@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import { AccountMenu } from "./AccountMenu";
 
 const mockLogout = vi.fn();
@@ -9,6 +9,14 @@ vi.mock("@/hooks/useAuth", () => ({
   useAuth: () => mockUseAuth(),
 }));
 
+vi.mock("@/components/ChangePasswordModal", () => ({
+  ChangePasswordModal: ({ onClose }: { onClose: () => void }) => (
+    <div data-testid="change-password-modal">
+      <button onClick={onClose}>close-modal</button>
+    </div>
+  ),
+}));
+
 describe("AccountMenu", () => {
   beforeEach(() => {
     mockLogout.mockReset();
@@ -16,6 +24,10 @@ describe("AccountMenu", () => {
       user: { id: "u1", email: "a@example.com" },
       logout: mockLogout,
     });
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it("renders nothing when there is no user", () => {
@@ -32,5 +44,15 @@ describe("AccountMenu", () => {
     fireEvent.click(screen.getByRole("button", { name: /log out/i }));
 
     await waitFor(() => expect(mockLogout).toHaveBeenCalledOnce());
+  });
+
+  it("opens the change password modal when clicked", () => {
+    render(<AccountMenu />);
+
+    expect(screen.queryByTestId("change-password-modal")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /change password/i }));
+
+    expect(screen.getByTestId("change-password-modal")).toBeInTheDocument();
   });
 });

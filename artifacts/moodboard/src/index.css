@@ -2331,3 +2331,18 @@ body {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.account-menu-change-password {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.account-menu-change-password:hover {
+  color: var(--text-primary);
+}
