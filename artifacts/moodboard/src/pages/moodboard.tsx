@@ -3,6 +3,7 @@ import { AddItemModal } from "@/components/AddItemModal";
 import { MoodboardCard } from "@/components/MoodboardCard";
 import { Lightbox } from "@/components/Lightbox";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AccountMenu } from "@/components/AccountMenu";
 import type { MoodboardItem } from "@/types";
 import {
   fetchItems,
@@ -547,6 +548,7 @@ export default function Moodboard() {
         )}
 
         <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        <AccountMenu />
       </div>
 
       {/* Board canvas — stays mounted to preserve pan/zoom state */}

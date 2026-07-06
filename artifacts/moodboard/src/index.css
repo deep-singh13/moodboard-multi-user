@@ -2296,3 +2296,38 @@ body {
   color: var(--text-secondary);
   font-family: 'DM Sans', sans-serif;
 }
+
+/* ── Account menu ─────────────────────────────────────────── */
+
+.account-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.account-menu-email {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.account-menu-logout {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--border-input);
+  border-radius: 100px;
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.account-menu-logout:hover:not(:disabled) {
+  background: var(--bg-topbar);
+}
+
+.account-menu-logout:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
