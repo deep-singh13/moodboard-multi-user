@@ -3,7 +3,9 @@ import type { MoodboardItem, MovieResult } from "@/types";
 const BASE = "/api";
 
 export async function fetchItems(board: string = "moodboard"): Promise<MoodboardItem[]> {
-  const res = await fetch(`${BASE}/items?board=${encodeURIComponent(board)}`);
+  const res = await fetch(`${BASE}/items?board=${encodeURIComponent(board)}`, {
+    credentials: "include",
+  });
   if (!res.ok) throw new Error(`Failed to fetch items: ${res.status}`);
   return res.json();
 }
@@ -12,6 +14,7 @@ export async function createItem(item: MoodboardItem): Promise<MoodboardItem> {
   const res = await fetch(`${BASE}/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(item),
   });
   if (!res.ok) throw new Error(`Failed to create item: ${res.status}`);
@@ -19,7 +22,10 @@ export async function createItem(item: MoodboardItem): Promise<MoodboardItem> {
 }
 
 export async function deleteItem(id: string): Promise<void> {
-  const res = await fetch(`${BASE}/items/${id}`, { method: "DELETE" });
+  const res = await fetch(`${BASE}/items/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
   if (!res.ok) throw new Error(`Failed to delete item: ${res.status}`);
 }
 
@@ -30,6 +36,7 @@ export async function patchItemComplete(
   const res = await fetch(`${BASE}/items/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ completed }),
   });
   if (!res.ok) throw new Error(`Failed to update item: ${res.status}`);
@@ -42,6 +49,7 @@ export async function patchItemNote(
   const res = await fetch(`${BASE}/items/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ note }),
   });
   if (!res.ok) throw new Error(`Failed to update note: ${res.status}`);
@@ -59,6 +67,7 @@ export async function patchItemEdit(
   const res = await fetch(`${BASE}/items/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(updates),
   });
   if (!res.ok) throw new Error(`Failed to update item: ${res.status}`);
@@ -72,7 +81,9 @@ export async function fetchOgMeta(url: string): Promise<{
   blockedHost?: boolean;
 }> {
   try {
-    const res = await fetch(`${BASE}/fetch-og?url=${encodeURIComponent(url)}`);
+    const res = await fetch(`${BASE}/fetch-og?url=${encodeURIComponent(url)}`, {
+      credentials: "include",
+    });
     if (!res.ok) return { fetchFailed: true };
     return res.json();
   } catch {
@@ -84,6 +95,9 @@ export async function fetchMovieSearch(q: string): Promise<MovieResult[]> {
   try {
     const res = await fetch(
       `${BASE}/movie-search?q=${encodeURIComponent(q)}`,
+      {
+        credentials: "include",
+      },
     );
     if (!res.ok) return [];
     return res.json();
@@ -94,7 +108,9 @@ export async function fetchMovieSearch(q: string): Promise<MovieResult[]> {
 
 export async function fetchMovieDetail(imdbId: string): Promise<MovieResult | null> {
   try {
-    const res = await fetch(`${BASE}/movie-detail/${encodeURIComponent(imdbId)}`);
+    const res = await fetch(`${BASE}/movie-detail/${encodeURIComponent(imdbId)}`, {
+      credentials: "include",
+    });
     if (!res.ok) return null;
     const data = await res.json();
     // Empty object means detail fetch failed
