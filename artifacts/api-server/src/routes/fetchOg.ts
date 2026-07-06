@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import sharp from "sharp";
+import { safeFetch } from "../lib/url-safety";
 
 const router: IRouter = Router();
 
@@ -18,7 +19,7 @@ const WEBP_QUALITY = 82;
 
 async function compressToWebPDataUrl(imageUrl: string): Promise<string | null> {
   try {
-    const res = await fetch(imageUrl, {
+    const res = await safeFetch(imageUrl, {
       headers: { "User-Agent": BROWSER_UA },
       signal: AbortSignal.timeout(15000),
     });
@@ -387,7 +388,7 @@ router.get("/fetch-og", async (req, res) => {
 
   // Generic websites → try direct OG scrape first (free, no quota)
   try {
-    const response = await fetch(url, {
+    const response = await safeFetch(url, {
       headers: {
         "User-Agent": BROWSER_UA,
         Accept:

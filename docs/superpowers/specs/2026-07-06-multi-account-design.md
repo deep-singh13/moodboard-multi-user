@@ -40,11 +40,12 @@ but is unused boilerplate; the real schema is raw SQL run at boot via
   is needed for the new `items.user_id` column.
 - Migrating `lib/db`'s Drizzle setup into active use. This phase continues
   the existing raw-SQL-in-`initDb()` pattern to minimize unrelated churn.
-- Fixing the pre-existing SSRF exposure in `artifacts/api-server/src/routes/fetchOg.ts`
+- The pre-existing SSRF exposure in `artifacts/api-server/src/routes/fetchOg.ts`
   (unvalidated outbound `fetch(url)` on user-supplied URLs, flagged by
-  automated security review of the initial copy commit). It predates this
-  fork and is orthogonal to multi-account support; tracked separately rather
-  than folded into this design.
+  automated security review of the initial copy commit) was fixed as a
+  standalone commit (`artifacts/api-server/src/lib/url-safety.ts`), separate
+  from and prior to the multi-account work — it predates this fork and is
+  orthogonal to account isolation.
 
 ## Data model
 
