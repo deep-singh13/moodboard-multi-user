@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { createSessionMiddleware } from "./lib/session";
 
 const app: Express = express();
 
@@ -27,7 +28,8 @@ app.use(
     },
   }),
 );
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+app.use(createSessionMiddleware());
 app.use(express.json({ limit: "20mb" }));
 app.use(express.urlencoded({ extended: true }));
 
