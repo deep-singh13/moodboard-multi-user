@@ -42,4 +42,31 @@ export async function initDb(): Promise<void> {
   await pool.query(`
     ALTER TABLE items ADD COLUMN IF NOT EXISTS meta TEXT
   `);
+  await pool.query(`
+    CREATE EXTENSION IF NOT EXISTS pgcrypto
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+      email         TEXT        NOT NULL UNIQUE,
+      password_hash TEXT        NOT NULL,
+      created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      sid    VARCHAR     PRIMARY KEY,
+      sess   JSON        NOT NULL,
+      expire TIMESTAMPTZ NOT NULL
+    )
+  `);
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_sessions_expire ON sessions (expire)
+  `);
+  await pool.query(`
+    ALTER TABLE items ADD COLUMN IF NOT EXISTS user_id UUID NOT NULL REFERENCES users(id)
+  `);
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_items_user_id ON items (user_id)
+  `);
 }
