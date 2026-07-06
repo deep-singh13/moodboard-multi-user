@@ -1,7 +1,10 @@
 import { Router, type IRouter } from "express";
 import { pool } from "../lib/db";
+import { requireAuth } from "../middlewares/require-auth";
 
 const router: IRouter = Router();
+
+router.use("/items", requireAuth);
 
 function rowToItem(row: Record<string, unknown>) {
   return {
@@ -27,8 +30,8 @@ router.get("/items", async (req, res) => {
   const board = (req.query.board as string | undefined) ?? "moodboard";
   try {
     const result = await pool.query(
-      "SELECT * FROM items WHERE board = $1 ORDER BY added_at ASC",
-      [board],
+      "SELECT * FROM items WHERE user_id = $1 AND board = $2 ORDER BY added_at ASC",
+      [req.user!.id, board],
     );
     res.json(result.rows.map(rowToItem));
   } catch {
@@ -42,7 +45,6 @@ router.post("/items", async (req, res) => {
     body;
   const note = (body.note as string | null | undefined) ?? null;
 
-  // Photos and reel thumbnails both arrive as base64 data URLs — store in image_data
   const isDataUrl = (imageUrl ?? "").startsWith("data:");
   const imageUrlDb = isDataUrl ? null : (imageUrl ?? null);
   const imageDataDb = isDataUrl ? (imageUrl ?? null) : null;
@@ -51,8 +53,8 @@ router.post("/items", async (req, res) => {
     const result = await pool.query(
       `INSERT INTO items
          (id, type, url, title, subtitle, image_url, size,
-          position_x, position_y, added_at, image_data, note, board, meta)
-       VALUES ($1,$2,$3,$4,$5,$6,$7, 0,0,$8,$9,$10,$11,$12)
+          position_x, position_y, added_at, image_data, note, board, meta, user_id)
+       VALUES ($1,$2,$3,$4,$5,$6,$7, 0,0,$8,$9,$10,$11,$12,$13)
        RETURNING *`,
       [
         id,
@@ -67,6 +69,7 @@ router.post("/items", async (req, res) => {
         note,
         board ?? "moodboard",
         meta ?? null,
+        req.user!.id,
       ],
     );
     res.json(rowToItem(result.rows[0]));
@@ -77,7 +80,10 @@ router.post("/items", async (req, res) => {
 
 router.delete("/items/:id", async (req, res) => {
   try {
-    await pool.query("DELETE FROM items WHERE id = $1", [req.params.id]);
+    await pool.query("DELETE FROM items WHERE id = $1 AND user_id = $2", [
+      req.params.id,
+      req.user!.id,
+    ]);
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: "Failed to delete item" });
@@ -93,35 +99,41 @@ router.patch("/items/:id", async (req, res) => {
     subtitle?: string | null;
     meta?: string | null;
   };
+  const userId = req.user!.id;
   try {
     if (body.completed !== undefined) {
-      await pool.query("UPDATE items SET completed = $1 WHERE id = $2", [
+      await pool.query("UPDATE items SET completed = $1 WHERE id = $2 AND user_id = $3", [
         body.completed,
         req.params.id,
+        userId,
       ]);
     }
     if ("note" in body) {
-      await pool.query("UPDATE items SET note = $1 WHERE id = $2", [
+      await pool.query("UPDATE items SET note = $1 WHERE id = $2 AND user_id = $3", [
         body.note ?? null,
         req.params.id,
+        userId,
       ]);
     }
     if ("title" in body) {
-      await pool.query("UPDATE items SET title = $1 WHERE id = $2", [
+      await pool.query("UPDATE items SET title = $1 WHERE id = $2 AND user_id = $3", [
         body.title ?? null,
         req.params.id,
+        userId,
       ]);
     }
     if ("subtitle" in body) {
-      await pool.query("UPDATE items SET subtitle = $1 WHERE id = $2", [
+      await pool.query("UPDATE items SET subtitle = $1 WHERE id = $2 AND user_id = $3", [
         body.subtitle ?? null,
         req.params.id,
+        userId,
       ]);
     }
     if ("meta" in body) {
-      await pool.query("UPDATE items SET meta = $1 WHERE id = $2", [
+      await pool.query("UPDATE items SET meta = $1 WHERE id = $2 AND user_id = $3", [
         body.meta ?? null,
         req.params.id,
+        userId,
       ]);
     }
     if ("imageUrl" in body) {
@@ -129,13 +141,13 @@ router.patch("/items/:id", async (req, res) => {
       const isDataUrl = typeof imageUrl === "string" && imageUrl.startsWith("data:");
       if (isDataUrl) {
         await pool.query(
-          "UPDATE items SET image_data = $1, image_url = NULL WHERE id = $2",
-          [imageUrl, req.params.id],
+          "UPDATE items SET image_data = $1, image_url = NULL WHERE id = $2 AND user_id = $3",
+          [imageUrl, req.params.id, userId],
         );
       } else {
         await pool.query(
-          "UPDATE items SET image_url = $1, image_data = NULL WHERE id = $2",
-          [imageUrl, req.params.id],
+          "UPDATE items SET image_url = $1, image_data = NULL WHERE id = $2 AND user_id = $3",
+          [imageUrl, req.params.id, userId],
         );
       }
     }
