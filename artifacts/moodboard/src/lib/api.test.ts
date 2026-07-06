@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { fetchItems, createItem, deleteItem, patchItemComplete } from "./api";
+import { onUnauthenticated } from "./auth-events";
 
 function mockFetchOnce(body: unknown) {
   global.fetch = vi.fn().mockResolvedValue({
@@ -48,5 +49,20 @@ describe("lib/api credentials", () => {
       "/api/items/1",
       expect.objectContaining({ method: "PATCH", credentials: "include" }),
     );
+  });
+
+  it("notifies onUnauthenticated listeners when a 401 is received", async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({}),
+    }) as unknown as typeof fetch;
+
+    const listener = vi.fn();
+    onUnauthenticated(listener);
+
+    await expect(fetchItems("moodboard")).rejects.toThrow();
+
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 });

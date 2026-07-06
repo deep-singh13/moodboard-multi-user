@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, within } from "@testing-library/react";
 import { AuthProvider, useAuth } from "./useAuth";
+import { notifyUnauthenticated } from "@/lib/auth-events";
 
 vi.mock("@/lib/auth-api", () => ({
   fetchMe: vi.fn(),
@@ -144,5 +145,24 @@ describe("AuthProvider", () => {
     fireEvent.click(logoutButton);
 
     await waitFor(() => expect(screen.getByText("logged out")).toBeInTheDocument());
+  });
+
+  it("clears user state when an unauthenticated event fires after login", async () => {
+    vi.mocked(fetchMe).mockResolvedValue({ id: "u5", email: "session@example.com" });
+
+    const { container } = render(
+      <AuthProvider>
+        <Consumer />
+      </AuthProvider>,
+    );
+    const scoped = within(container);
+
+    await waitFor(() =>
+      expect(scoped.getByText("hello session@example.com")).toBeInTheDocument(),
+    );
+
+    notifyUnauthenticated();
+
+    await waitFor(() => expect(scoped.getByText("logged out")).toBeInTheDocument());
   });
 });

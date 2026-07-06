@@ -13,6 +13,7 @@ import {
   logout as apiLogout,
   type AuthUser,
 } from "@/lib/auth-api";
+import { onUnauthenticated } from "@/lib/auth-events";
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -33,6 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(setUser)
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    onUnauthenticated(() => setUser(null));
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {

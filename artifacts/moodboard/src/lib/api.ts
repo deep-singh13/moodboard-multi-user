@@ -1,4 +1,5 @@
 import type { MoodboardItem, MovieResult } from "@/types";
+import { notifyUnauthenticated } from "./auth-events";
 
 const BASE = "/api";
 
@@ -6,7 +7,10 @@ export async function fetchItems(board: string = "moodboard"): Promise<Moodboard
   const res = await fetch(`${BASE}/items?board=${encodeURIComponent(board)}`, {
     credentials: "include",
   });
-  if (!res.ok) throw new Error(`Failed to fetch items: ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401) notifyUnauthenticated();
+    throw new Error(`Failed to fetch items: ${res.status}`);
+  }
   return res.json();
 }
 
@@ -17,7 +21,10 @@ export async function createItem(item: MoodboardItem): Promise<MoodboardItem> {
     credentials: "include",
     body: JSON.stringify(item),
   });
-  if (!res.ok) throw new Error(`Failed to create item: ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401) notifyUnauthenticated();
+    throw new Error(`Failed to create item: ${res.status}`);
+  }
   return res.json();
 }
 
@@ -26,7 +33,10 @@ export async function deleteItem(id: string): Promise<void> {
     method: "DELETE",
     credentials: "include",
   });
-  if (!res.ok) throw new Error(`Failed to delete item: ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401) notifyUnauthenticated();
+    throw new Error(`Failed to delete item: ${res.status}`);
+  }
 }
 
 export async function patchItemComplete(
@@ -39,7 +49,10 @@ export async function patchItemComplete(
     credentials: "include",
     body: JSON.stringify({ completed }),
   });
-  if (!res.ok) throw new Error(`Failed to update item: ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401) notifyUnauthenticated();
+    throw new Error(`Failed to update item: ${res.status}`);
+  }
 }
 
 export async function patchItemNote(
@@ -52,7 +65,10 @@ export async function patchItemNote(
     credentials: "include",
     body: JSON.stringify({ note }),
   });
-  if (!res.ok) throw new Error(`Failed to update note: ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401) notifyUnauthenticated();
+    throw new Error(`Failed to update note: ${res.status}`);
+  }
 }
 
 export async function patchItemEdit(
@@ -70,7 +86,10 @@ export async function patchItemEdit(
     credentials: "include",
     body: JSON.stringify(updates),
   });
-  if (!res.ok) throw new Error(`Failed to update item: ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401) notifyUnauthenticated();
+    throw new Error(`Failed to update item: ${res.status}`);
+  }
 }
 
 export async function fetchOgMeta(url: string): Promise<{
@@ -84,7 +103,10 @@ export async function fetchOgMeta(url: string): Promise<{
     const res = await fetch(`${BASE}/fetch-og?url=${encodeURIComponent(url)}`, {
       credentials: "include",
     });
-    if (!res.ok) return { fetchFailed: true };
+    if (!res.ok) {
+      if (res.status === 401) notifyUnauthenticated();
+      return { fetchFailed: true };
+    }
     return res.json();
   } catch {
     return { fetchFailed: true };
@@ -99,7 +121,10 @@ export async function fetchMovieSearch(q: string): Promise<MovieResult[]> {
         credentials: "include",
       },
     );
-    if (!res.ok) return [];
+    if (!res.ok) {
+      if (res.status === 401) notifyUnauthenticated();
+      return [];
+    }
     return res.json();
   } catch {
     return [];
@@ -111,7 +136,10 @@ export async function fetchMovieDetail(imdbId: string): Promise<MovieResult | nu
     const res = await fetch(`${BASE}/movie-detail/${encodeURIComponent(imdbId)}`, {
       credentials: "include",
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      if (res.status === 401) notifyUnauthenticated();
+      return null;
+    }
     const data = await res.json();
     // Empty object means detail fetch failed
     if (!data.title) return null;

@@ -66,7 +66,11 @@ router.post("/auth/logout", (req, res) => {
       res.status(500).json({ error: "Failed to log out" });
       return;
     }
-    res.clearCookie("connect.sid", { path: "/" });
+    res.clearCookie("connect.sid", {
+      path: "/",
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
     res.json({ ok: true });
   });
 });
