@@ -45,6 +45,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@types/node": "catalog:",
