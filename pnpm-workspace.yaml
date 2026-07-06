@@ -122,7 +122,6 @@ overrides:
   "@tailwindcss/oxide>@tailwindcss/oxide-linux-x64-musl": "-"
   "rollup>@rollup/rollup-android-arm-eabi": "-"
   "rollup>@rollup/rollup-android-arm64": "-"
-  "rollup>@rollup/rollup-darwin-arm64": "-"
   "rollup>@rollup/rollup-darwin-x64": "-"
   "rollup>@rollup/rollup-freebsd-arm64": "-"
   "rollup>@rollup/rollup-freebsd-x64": "-"
@@ -157,3 +156,9 @@ overrides:
   # drizzle-kit uses esbuild internally on an older version that's vulnerable, this overrides it
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
   esbuild: "0.27.3"
+
+allowBuilds:
+  bcrypt: true
+  esbuild: true
+  rollup: true
+  sharp: true
