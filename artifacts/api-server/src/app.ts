@@ -9,6 +9,13 @@ import { createSessionMiddleware } from "./lib/session";
 
 const app: Express = express();
 
+// Render (and most PaaS platforms) terminate TLS at a proxy and forward
+// requests to this process over plain HTTP. Without trusting the proxy,
+// Express sees every request as insecure, so express-session refuses to set
+// the `secure` session cookie in production — trust the first hop so
+// `X-Forwarded-Proto` is honored and `req.secure` reflects the real scheme.
+app.set("trust proxy", 1);
+
 app.use(
   pinoHttp({
     logger,
