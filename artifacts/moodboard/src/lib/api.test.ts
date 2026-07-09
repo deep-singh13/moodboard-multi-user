@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchItems, createItem, deleteItem, patchItemComplete } from "./api";
+import { fetchItems, createItem, deleteItem, patchItemComplete, patchItemPinned } from "./api";
 import { onUnauthenticated } from "./auth-events";
 
 function mockFetchOnce(body: unknown) {
@@ -45,6 +45,15 @@ describe("lib/api credentials", () => {
   it("patchItemComplete sends credentials: include", async () => {
     mockFetchOnce({ ok: true });
     await patchItemComplete("1", true);
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/items/1",
+      expect.objectContaining({ method: "PATCH", credentials: "include" }),
+    );
+  });
+
+  it("patchItemPinned sends credentials: include", async () => {
+    mockFetchOnce({ ok: true });
+    await patchItemPinned("1", true);
     expect(fetch).toHaveBeenCalledWith(
       "/api/items/1",
       expect.objectContaining({ method: "PATCH", credentials: "include" }),

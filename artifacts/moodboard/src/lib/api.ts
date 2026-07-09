@@ -55,6 +55,22 @@ export async function patchItemComplete(
   }
 }
 
+export async function patchItemPinned(
+  id: string,
+  pinned: boolean,
+): Promise<void> {
+  const res = await fetch(`${BASE}/items/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ pinned }),
+  });
+  if (!res.ok) {
+    if (res.status === 401) notifyUnauthenticated();
+    throw new Error(`Failed to update item: ${res.status}`);
+  }
+}
+
 export async function patchItemNote(
   id: string,
   note: string | null,
