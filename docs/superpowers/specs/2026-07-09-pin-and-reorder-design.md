@@ -73,9 +73,9 @@ In both repos' `routes/items.ts`:
     just consumes the already-sorted `displayed` array, so pinned items
     naturally land near the top of each column.
 - `components/DiscoverCard.tsx` / `components/QuoteCard.tsx`:
-  - New pin toggle button, placed in the existing top-left button cluster
-    alongside the edit button (Discover) / edit button (Quotes — Quotes
-    currently only has edit+remove).
+  - New pin toggle button, placed top-right, left of the existing remove
+    button (both cards already have edit top-left and remove top-right;
+    the pin button sits between them at `right: 40px`).
   - Uses a simple pin/thumbtack SVG (matching the existing icon style:
     `stroke="currentColor" strokeWidth="2.5"`, 11×11 viewBox 24).
   - Active (pinned) state gets a filled/highlighted treatment, reusing the
