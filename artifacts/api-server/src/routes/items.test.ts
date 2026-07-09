@@ -92,3 +92,46 @@ describe("PATCH /api/items/:id", () => {
     expect(row.rows[0].note).toBe("original");
   });
 });
+
+describe("pinned items", () => {
+  it("sorts newest-first, floats pinned items to the top, and falls back to age order when unpinned", async () => {
+    const alice = await signupAgent(`alice4${TEST_EMAIL_DOMAIN}`);
+
+    await alice.post("/api/items").send({
+      id: "item-order-1",
+      type: "link",
+      addedAt: new Date(Date.now() - 2000).toISOString(),
+      board: "moodboard",
+    });
+    await alice.post("/api/items").send({
+      id: "item-order-2",
+      type: "link",
+      addedAt: new Date(Date.now() - 1000).toISOString(),
+      board: "moodboard",
+    });
+
+    let items = await alice.get("/api/items");
+    expect(items.body.map((i: { id: string }) => i.id)).toEqual([
+      "item-order-2",
+      "item-order-1",
+    ]);
+
+    await alice.patch("/api/items/item-order-1").send({ pinned: true });
+
+    items = await alice.get("/api/items");
+    expect(items.body.map((i: { id: string }) => i.id)).toEqual([
+      "item-order-1",
+      "item-order-2",
+    ]);
+    expect(items.body[0].pinned).toBe(true);
+
+    await alice.patch("/api/items/item-order-1").send({ pinned: false });
+
+    items = await alice.get("/api/items");
+    expect(items.body.map((i: { id: string }) => i.id)).toEqual([
+      "item-order-2",
+      "item-order-1",
+    ]);
+    expect(items.body[0].pinned).toBe(false);
+  });
+});

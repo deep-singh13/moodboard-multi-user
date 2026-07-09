@@ -69,4 +69,7 @@ export async function initDb(): Promise<void> {
   await pool.query(`
     CREATE INDEX IF NOT EXISTS idx_items_user_id ON items (user_id)
   `);
+  await pool.query(`
+    ALTER TABLE items ADD COLUMN IF NOT EXISTS pinned BOOLEAN NOT NULL DEFAULT false
+  `);
 }
